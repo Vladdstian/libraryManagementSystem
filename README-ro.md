@@ -27,5 +27,8 @@ Un sistem de gestionare pentru o rețea de biblioteci care permite utilizatorilo
 - **Gestionare conflicte**: În cazul în care o carte este deja rezervată sau împrumutată.
 - **Notificări**: Trimiterea de mesaje către cititori despre starea împrumuturilor lor.
 
+#### Database Schema:
+![db Schema](https://github.com/Vladdstian/libraryManagementSystem/blob/main/db_schema.png?raw=true
+)
 
 Read this in other languages: [English](README.md) 

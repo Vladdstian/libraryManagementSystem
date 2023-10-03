@@ -27,5 +27,8 @@ A management system for a library network that allows users to borrow, return, a
 - **Conflict Management**: In case a book is already reserved or borrowed.
 - **Notifications**: Sending messages to readers about the status of their borrowings.
 
+#### Database Schema:
+![db Schema](https://github.com/Vladdstian/libraryManagementSystem/blob/main/db_schema.png?raw=true
+)
 
 Read this in other languages: [Romanian](README-ro.md)
