@@ -14,7 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Genre extends BaseIdentifier {
     private String name;
-    @OneToMany (mappedBy = "genre")
 
+    @OneToMany (mappedBy = "genre")
     private List<Book> bookGenres;
 }

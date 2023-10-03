@@ -4,30 +4,9 @@ import jakarta.persistence.EntityManager;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
-/** Sistem de Gestionare a Rețelei de Biblioteci
- Descriere Scurtă:
- Dezvoltă un sistem de gestionare pentru o rețea de biblioteci care permite utilizatorilor să împrumute, să returneze și să rezerve cărți. Sistemul ar trebui să aibă următoarele funcții principale:
- Gestionarea Inventarului de Cărți:
- Stocarea informațiilor despre cărțile disponibile, cum ar fi titlul, autorul, anul publicării, genul și locația în bibliotecă.
- Actualizarea inventarului atunci când cărțile sunt împrumutate sau returnate.
- Urmărirea disponibilității cărților în funcție de starea de împrumut.
- Managementul Cititorilor:
- Stocarea detaliilor despre cititori, inclusiv numele, informațiile de contact și istoricul împrumuturilor.
- Permiterea cititorilor să creeze conturi și să se autentifice pentru a gestiona împrumuturile lor.
- Verificarea informațiilor cititorilor în timpul procesului de împrumut.
- Procesul de Împrumut:
- Permiterea cititorilor să caute cărți disponibile în funcție de titlu, autor, gen și alte criterii.
- Afișarea unei liste de cărți disponibile care se potrivesc cu criteriile de căutare.
- Permiterea cititorilor să selecteze o carte și să continue cu împrumutul.
- Calcularea duratei de împrumut și a eventualelor penalități pentru întârziere.
- Confirmarea împrumutului și furnizarea unui ID unic de împrumut cititorului.
- Actualizarea inventarului de cărți și marcarea cărții ca împrumutată pentru perioada specificată.
- Managementul Împrumuturilor:
- Permiterea cititorilor să vizualizeze, să prelungească sau să încheie împrumuturile existente.
- Gestionarea conflictelor dacă o carte este deja împrumutată sau rezervată pentru perioada solicitată.
- Trimiterea de notificări către cititori pentru confirmările de împrumut, prelungiri sau încheieri ale împrumuturilor.
-
- */
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 // TODO - create service class for searching entities.
 public class Main {
@@ -43,14 +22,91 @@ public class Main {
                 .buildSessionFactory();
 
         EntityManager entityManager = sessionFactory.createEntityManager();
+        List<Book> selfDevBooks = new ArrayList<>();
+        Genre selfDevelopment = new Genre("Self Development", selfDevBooks);
 
+        List<Book> novelBooks = new ArrayList<>();
+        Genre novel = new Genre("Novel", selfDevBooks);
 
+        List<Book> sciFiBooks = new ArrayList<>();
+        Genre sciFi = new Genre("Science Fiction", sciFiBooks);
 
+        List<Author> book1Authors = new ArrayList<>();
+        List<Reservation> book1Reservations = new ArrayList<>();
+        Book book1 = new Book("How to Win Friends and Influence People",
+                "Bucharest",
+                1936,
+                5,
+                true,
+                book1Authors,
+                selfDevelopment,
+                book1Reservations);
 
+        List<Author> book2Authors = new ArrayList<>();
+        List<Reservation> book2Reservations = new ArrayList<>();
+        Book book2 = new Book("The 7 Habits of Highly Effective People: Powerful Lessons in Personal Change",
+                "Brasov",
+                1989,
+                10,
+                true,
+                book2Authors,
+                selfDevelopment,
+                book2Reservations);
 
+        List<Author> book3Authors = new ArrayList<>();
+        List<Reservation> book3Reservations = new ArrayList<>();
+        Book book3 = new Book("Dune",
+                "Brasov",
+                1965,
+                6,
+                true,
+                book3Authors,
+                selfDevelopment,
+                book3Reservations);
 
-
+        List<Author> book4Authors = new ArrayList<>();
+        List<Reservation> book4Reservations = new ArrayList<>();
+        Book book4 = new Book("Dune",
+                "Brasov",
+                1965,
+                6,
+                true,
+                book4Authors,
+                selfDevelopment,
+                book4Reservations);
     }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    public static List<Book> displayBooks(String name, EntityManager entityManager) {
+        List<Book> foundBooks = InventoryManager.searchTitle(name, entityManager);
+        if(foundBooks.isEmpty()) {
+            System.out.println("Book couldn't be found. Please try again");
+            return null;
+        } else {
+            int count = 0;
+            for (Book foundBook : foundBooks) {
+                System.out.printf("%d. \"%s\" \n\tAuthor(s): %s \n\tGenre: %s\n",
+                        count,
+                        foundBook.getTitle(),
+                        Arrays.toString(foundBook.getAuthorList().toArray()),
+                        foundBook.getGenre().toString()
+                );
+            }
+            return foundBooks;
+        }
+    }
 
 }

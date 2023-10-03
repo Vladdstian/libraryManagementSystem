@@ -1,35 +1,26 @@
 package com.libManag;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
-@Entity (name = "reservations")
+@Entity(name = "reservations")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class Reservation extends BaseIdentifier {
-
-    public static final int Deadline = 30;
-
+    public static final int daysLoaned = 30;
     private StateOfReservation state;
-
     private LocalDate dateOfReservation;
 
-    @ManyToOne // mai multe rezervari facute de un client
-
+    @ManyToOne
     private Client client;
 
-    @OneToMany // o rezervare pentru una sau mai multe carti
-
+    @ManyToMany
     private List<Book> bookList;
 
 }

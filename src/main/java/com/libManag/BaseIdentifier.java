@@ -9,7 +9,5 @@ import jakarta.persistence.MappedSuperclass;
 public class BaseIdentifier {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
-     private int id;
-
+    private int id;
 }

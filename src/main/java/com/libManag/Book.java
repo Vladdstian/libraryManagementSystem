@@ -8,28 +8,28 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Book extends BaseIdentifier{
-   private String title;
+public class Book extends BaseIdentifier {
+    private String title;
+    private String location;
     private int yearReleased;
+    private int bookCount;
     private boolean isAvailable;
 
-    private int bookCount;
-
-
-    @ManyToMany (mappedBy = "bookList" )
-
-   private List<Author> authorList;
+    @ManyToMany(mappedBy = "bookList")
+    private List<Author> authorList;
 
     @ManyToOne
-
     private Genre genre;
 
-    @ManyToOne
-    private Client client;
+    @ManyToMany
+    private List<Reservation> reservation;
 
-
+//    no need to have a relationship with the books since we have a reservation class
+//    @ManyToOne
+//    private Client client;
 }
