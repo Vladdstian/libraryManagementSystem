@@ -8,12 +8,16 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 @Entity
+@Data
+@NoArgsConstructor
 public class Author extends Person {
 
     @ManyToMany
     private List<Book> bookList;
+
+    public Author(String firstName, String lastName, List<Book> bookList) {
+        super(firstName, lastName);
+        this.bookList = bookList;
+    }
 }

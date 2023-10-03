@@ -37,4 +37,9 @@ public class InventoryManager {
                 .setParameter("authorLastName", authorLastName)
                 .getResultList();
     }
+
+    public static List<Book> allBooks(EntityManager entityManager){
+        return entityManager.createQuery( "from Book", Book.class)
+                .getResultList();
+    }
 }
