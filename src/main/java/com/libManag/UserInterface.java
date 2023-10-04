@@ -87,7 +87,7 @@ public class UserInterface {
         int authorsNum = scanner.nextInt();
 
         // create or add author(s) to the new book
-        List<Author> bookAuthors = new ArrayList<>();
+        List<Author> bookAuthors = new ArrayList<>(5);
         for (int i = 0; i < authorsNum; i++) {
             //1 - search for an author
             System.out.println("Please search for an Author last name in the database: ");
@@ -117,7 +117,6 @@ public class UserInterface {
                 bookAuthors, bookGenre, bookReservations);
 
         Service.save(newBook, entityManager);
-
     }
 
 
