@@ -195,7 +195,6 @@ public class UserInterface {
         bookGenre.getBookGenres().add(newBook);
 
         Service.save(newBook, entityManager);
-
     }
 
 
