@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -23,21 +24,7 @@ public class UserInterface {
         while(true) {
             menu();
             int choice = scanner.nextInt();
-            switch (choice) {
-                case 4 -> {
-                    System.out.println("Exiting the program...");
-                    return;
-                }
-                case 1 -> {
-                    createUser();
-                }
-                case 2 -> {
-
-                }
-                case 3 -> {
-                    createBook();
-                }
-            }
+            choiceMenu(choice);
         }
     }
 
@@ -49,6 +36,83 @@ public class UserInterface {
                     "3. Admin\n" +
                     "Enter 4 to quit"
                 );
+    }
+
+    private void choiceMenu(int choice) {
+        switch (choice) {
+            case 4 -> {
+                System.out.println("Exiting the program...");
+            }
+            case 1 -> {
+                createUser();
+            }
+            case 2 -> {
+                logInMenu();
+            }
+            case 3 -> {
+                clearScreen();
+                adminMenu();
+            }
+        }
+    }
+
+    private void logInMenu() {
+        while (true) {
+            clearScreen();
+            System.out.println("Please enter your username: ");
+            String username = scanner.next();
+            String foundPassword = ClientManager.searchUsername(username, entityManager);
+            System.out.println("Please enter your password: ");
+            String password = scanner.next();
+            // TODO: create new user if the client doesn't exist
+            if (foundPassword.equals(password)) {
+                clearScreen();
+                //clientMenu();
+                break;
+            }
+        }
+    }
+
+    private void clientMenu(Client client) {
+        System.out.printf("Welcome %s %s!\n" +
+                "1. Borrow new books\n" +
+                "2. View active borrowings\n" +
+                "3. View borrowing history\n", client.getFirstName(), client.getLastName());
+    }
+
+    private void adminMenu() {
+        System.out.println(
+                "Welcome admin!\n" +
+                "1. Create book\n" +
+                "2. Create author\n" +
+                "3. Create genre\n" +
+                "Enter 4 to go back or 5 to quit"
+        );
+        int choice = scanner.nextInt();
+        choiceAdminMenu(choice);
+    }
+
+    private void choiceAdminMenu(int choice) {
+        switch (choice) {
+            case 1 -> {
+                createBook();
+                adminMenu();
+            }
+            case 2 -> {
+                createAuthor();
+                adminMenu();
+            }
+            case 3 -> {
+                createGenre();
+                adminMenu();
+            }
+            case 4 -> {
+
+            }
+            case 5 -> {
+
+            }
+        }
     }
 
     private void createUser() {
@@ -97,8 +161,10 @@ public class UserInterface {
             //2 - if exists, add the author
             if (!foundAuthors.isEmpty()) {
                 author = foundAuthors.get(0);
+                System.out.println("Author found: " + author.getFirstName() + " " + author.getLastName());
                 bookAuthors.add(author);
             } else { // 3 - if it doesn't exist we create a new one
+                System.out.println("Author not found in the database, please create a new author!");
                 author = createAuthor();
                 bookAuthors.add(author);
             }
@@ -113,7 +179,11 @@ public class UserInterface {
         //2 - if exists, add the genre
         if (!foundGenre.isEmpty()) {
             bookGenre = foundGenre.get(0);
-        } else bookGenre = createGenre(); // 3 - if it doesn't exist we create a new one
+            System.out.println("Genre found: " + bookGenre.getName());
+        } else {
+            System.out.println("Genre not found, please create a new genre!");
+            bookGenre = createGenre(); // 3 - if it doesn't exist we create a new one
+        }
 
         List<Reservation> bookReservations = new ArrayList<>();
 
@@ -154,5 +224,9 @@ public class UserInterface {
         Service.save(genre, entityManager);
 
         return genre;
+    }
+
+    private void clearScreen() {
+        System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n");
     }
 }
