@@ -87,7 +87,8 @@ public class UserInterface {
         int authorsNum = scanner.nextInt();
 
         // create or add author(s) to the new book
-        List<Author> bookAuthors = new ArrayList<>(5);
+        List<Author> bookAuthors = new ArrayList<>();
+        Author author = null;
         for (int i = 0; i < authorsNum; i++) {
             //1 - search for an author
             System.out.println("Please search for an Author last name in the database: ");
@@ -95,8 +96,12 @@ public class UserInterface {
             List<Author> foundAuthors = AuthorsRepository.searchName(authorName, entityManager);
             //2 - if exists, add the author
             if (!foundAuthors.isEmpty()) {
-                bookAuthors.add(foundAuthors.get(0));
-            } else bookAuthors.add(createAuthor()); // 3 - if it doesn't exist we create a new one
+                author = foundAuthors.get(0);
+                bookAuthors.add(author);
+            } else { // 3 - if it doesn't exist we create a new one
+                author = createAuthor();
+                bookAuthors.add(author);
+            }
         }
 
         // create or add a genre to the book
@@ -116,15 +121,37 @@ public class UserInterface {
                 location, yearReleased, bookCount,
                 bookAuthors, bookGenre, bookReservations);
 
+        author.getBookList().add(newBook);
+        bookGenre.getBookGenres().add(newBook);
+
         Service.save(newBook, entityManager);
     }
 
 
     private Author createAuthor() {
-        return null;
+        System.out.println("Please enter author last name: ");
+        String lastName = scanner.next();
+
+        System.out.println("Please enter author first name: ");
+        String firstName = scanner.next();
+
+        List<Book> bookList = new ArrayList<>();
+
+        Author author = new Author(firstName, lastName, bookList);
+        Service.save(author, entityManager);
+
+        return author;
     }
 
     private Genre createGenre() {
-        return null;
+        System.out.println("Please enter a new genre: ");
+        String genreName = scanner.next();
+
+        List<Book> genreList = new ArrayList<>();
+
+        Genre genre = new Genre(genreName, genreList);
+        Service.save(genre, entityManager);
+
+        return genre;
     }
 }
