@@ -40,11 +40,10 @@ public class ClientManager {
                 .getResultList();
     }
 
-    public static String searchUsername(String username, EntityManager entityManager) {
-        List<Client> clientList = entityManager.createQuery("select a from Client a where username = :username", Client.class)
+    public static List<Client> searchUsername(String username, EntityManager entityManager) {
+        return entityManager.createQuery("select a from Client a where username = :username", Client.class)
                 .setParameter("username", username)
                 .getResultList();
-        return clientList.get(0).getPassword();
     }
 }
 
