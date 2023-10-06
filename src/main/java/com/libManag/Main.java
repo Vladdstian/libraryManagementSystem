@@ -1,10 +1,12 @@
 package com.libManag;
 
+import com.beust.ah.A;
 import jakarta.persistence.EntityManager;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +27,5 @@ public class Main {
         EntityManager entityManager = sessionFactory.createEntityManager();
         UserInterface ui = new UserInterface(entityManager);
         ui.mainMenu();
-
     }
 }

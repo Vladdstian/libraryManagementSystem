@@ -1,11 +1,8 @@
 package com.libManag;
 
 import jakarta.persistence.EntityManager;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -81,7 +78,10 @@ public class UserInterface {
     private void choiceClientMenu(int choice, Client client){
         switch (choice){
             case 1 -> {
-                borrowNewBooks();
+                List<Book> booksToBeReserved = new ArrayList<>();
+                Reservation reservation = new Reservation(StateOfReservation.PENDING, LocalDate.now(), client, booksToBeReserved);
+                Service.save(reservation, entityManager);
+                borrowNewBooks(client, reservation);
                 clientMenu(client);
             }
             case 2 ->{
@@ -93,7 +93,7 @@ public class UserInterface {
                 clientMenu(client);
             }
             case 4 ->{
-                System.out.println("Go back");
+                clearScreen();
                 mainMenu();
             }
             case 5 ->{
@@ -102,29 +102,94 @@ public class UserInterface {
         }
     }
 
-
-    private void borrowNewBooks(){
+    private void borrowNewBooks(Client client, Reservation reservation) {
         System.out.println("Search: ");
         String term = scanner.next();
-        List<Book> foundBooks= new ArrayList<>();
-        List<Author> foundAuthors= new ArrayList<>();
-        List<Genre> foundGenre= new ArrayList<>();
-        // searching for books, authors, genre
-        foundBooks.addAll(InventoryManager.searchTitle(term, entityManager));
-        foundAuthors.addAll(AuthorsRepository.searchName(term, entityManager));
-        foundGenre.addAll(GenreRepository.searchName(term, entityManager));
+        List<Book> booksFound = searchBooks(term);
 
-        foundBooks.forEach(book -> System.out.println(book.getTitle()));
-        foundAuthors.forEach(author -> System.out.println(author.getLastName() + " " +
-                author.getFirstName()));
-        foundGenre.forEach(genre -> System.out.println(genre.getName()));
+        if (booksFound.isEmpty()) {
+            clearScreen();
+            System.out.println("Your search returned no results...");
+            clientMenu(client);
+        }
+        System.out.println("Books found: ");
+        for (int i = 0; i < booksFound.size(); i++) {
+            Book book = booksFound.get(i);
+            StringBuilder stringBuilder = new StringBuilder();
+            book.getAuthorList().forEach(author -> stringBuilder.append(author.getLastName() + " " + author.getFirstName()));
+            System.out.printf("%d. %s, %s, %d (Located in: %s)\n",
+                    (i+1),
+                    book.getTitle(),
+                    stringBuilder.toString(),
+                    book.getYearReleased(),
+                    book.getLocation());
+        }
+        System.out.println("Please choose a book to borrow: ");
+        int borrowChoice = scanner.nextInt();
+        Book borrowedBook = booksFound.get(borrowChoice - 1);
+        reservation.getBookList().add(borrowedBook);
+        System.out.println("Do you want to borrow more books?");
+        String moreBooksChoice = scanner.next();
+        if (moreBooksChoice.equalsIgnoreCase("yes") || moreBooksChoice.equalsIgnoreCase("y")) {
+            borrowNewBooks(client, reservation);
+        }
+        reservation.setDateOfReturn(reservation.getDateOfReservation().plusDays(Reservation.maxDaysLoaned));
+        reservation.setState(StateOfReservation.ACTIVE);
+        borrowedBook.setBookCount(borrowedBook.getBookCount() - 1);
+        // UPDATE IN DB
+        System.out.printf("Your reservation has the id: %d\n", reservation.getId());
+        Service.update(reservation, entityManager);
     }
 
-    private void viewActiveBorrowings(){
+    private List<Book> searchBooks(String term) {
+        List<Book> booksFound = new ArrayList<>();
+        List<Author> foundAuthors = new ArrayList<>();
+        List<Genre> foundGenre = new ArrayList<>();
+        // Searching for books by:
+        // title
+        booksFound.addAll(BookManager.searchTitle(term, entityManager));
+        // year of release
+        try {
+            booksFound.addAll(BookManager.searchYearOfRelease(Integer.valueOf(term), entityManager));
+        } catch (Exception e) {
+
+        }
+        // location
+        booksFound.addAll(BookManager.searchLocation(term, entityManager));
+
+        // Searching for authors by:
+        // attempt to search by complete name by splitting the searched term by space
+        try {
+            String name1 = term.split(" ")[0];
+            String name2 = term.split(" ")[1];
+            foundAuthors.addAll(AuthorsManager.searchName(name1, name2, entityManager));
+            foundAuthors.addAll(AuthorsManager.searchName(name2, name1, entityManager));
+        } catch (Exception e) {
+            // if the term cannot be split into 2 or multiple an exception is thrown when trying to
+            // access the second element in the list
+            // last name
+            foundAuthors.addAll(AuthorsManager.searchLastName(term, entityManager));
+            // first name
+            foundAuthors.addAll(AuthorsManager.searchFirstName(term, entityManager));
+        }
+
+        // Searching for genre by name:
+        foundGenre.addAll(GenreManager.searchName(term, entityManager));
+
+        // add all the books in the list of books for each author found
+        foundAuthors.forEach(author -> booksFound.addAll(author.getBookList()));
+
+        // add all the books in the list of books for each genre found
+        foundGenre.forEach(genre -> booksFound.addAll(genre.getBookGenres()));
+
+        return booksFound;
+    }
+
+    private void viewActiveBorrowings() {
 
     }
 
-    public void viewBorrowingHistory(){
+    private void viewBorrowingHistory() {
 
     }
 
@@ -146,7 +211,6 @@ public class UserInterface {
         switch (choice) {
             case 1 -> {
                 createBook();
-                adminMenu();
             }
             case 2 -> {
                 createAuthor();
@@ -183,6 +247,9 @@ public class UserInterface {
         Client newClient = new Client(firstName,lastName,username,password,clientReservations);
 
         Service.save(newClient, entityManager);
+
+        clearScreen();
+        mainMenu();
     }
 
     private void createBook() {
@@ -208,7 +275,7 @@ public class UserInterface {
             //1 - search for an author
             System.out.println("Please search for an Author last name in the database: ");
             String authorName = scanner.next();
-            List<Author> foundAuthors = AuthorsRepository.searchName(authorName, entityManager);
+            List<Author> foundAuthors = AuthorsManager.searchLastName(authorName, entityManager);
             //2 - if exists, add the author
             if (!foundAuthors.isEmpty()) {
                 author = foundAuthors.get(0);
@@ -226,7 +293,7 @@ public class UserInterface {
         //1 - search for a Genre
         System.out.println("What is the genre of the book: ");
         String genreName = scanner.next();
-        List<Genre> foundGenre = GenreRepository.searchName(genreName, entityManager);
+        List<Genre> foundGenre = GenreManager.searchName(genreName, entityManager);
         //2 - if exists, add the genre
         if (!foundGenre.isEmpty()) {
             bookGenre = foundGenre.get(0);
@@ -246,8 +313,9 @@ public class UserInterface {
         bookGenre.getBookGenres().add(newBook);
 
         Service.save(newBook, entityManager);
+        clearScreen();
+        adminMenu();
     }
-
 
     private Author createAuthor() {
         System.out.println("Please enter author last name: ");
