@@ -41,8 +41,4 @@ public class Book extends BaseIdentifier {
         this.reservation = reservation;
         isAvailable = true;
     }
-
-//    no need to have a relationship with the books since we have a reservation class
-//    @ManyToOne
-//    private Client client;
 }
