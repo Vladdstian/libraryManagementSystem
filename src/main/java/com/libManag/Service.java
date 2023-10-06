@@ -3,12 +3,9 @@ package com.libManag;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 
-public class Service {
+public interface Service {
 
-    private Service() {
-    }
-
-    public static <T> T save(final T obj, EntityManager entityManager) {
+    static <T> T save(final T obj, EntityManager entityManager) {
         EntityTransaction transaction = null;
         try {
             transaction = entityManager.getTransaction();
@@ -26,7 +23,7 @@ public class Service {
         }
     }
 
-    public static <T> T delete(final T obj, EntityManager entityManager) {
+    static <T> T delete(final T obj, EntityManager entityManager) {
         EntityTransaction transaction = null;
         try {
             transaction = entityManager.getTransaction();
@@ -44,4 +41,21 @@ public class Service {
         }
     }
 
+    public static <T> T update(final T obj, EntityManager entityManager) {
+        EntityTransaction transaction = null;
+        try {
+            transaction = entityManager.getTransaction();
+            if (!transaction.isActive()) {
+                transaction.begin();
+            }
+            T updatedObj = entityManager.merge(obj);
+            transaction.commit();
+            return updatedObj;
+        } catch (final Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            return null;
+        }
+    }
 }

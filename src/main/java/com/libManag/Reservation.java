@@ -13,9 +13,18 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 public class Reservation extends BaseIdentifier {
-    public static final int daysLoaned = 30;
+    public static final int maxDaysLoaned = 30;
     private StateOfReservation state;
     private LocalDate dateOfReservation;
+    private LocalDate dateOfReturn;
+
+    public Reservation(StateOfReservation state, LocalDate dateOfReservation, Client client, List<Book> bookList) {
+        super();
+        this.state = state;
+        this.dateOfReservation = dateOfReservation;
+        this.client = client;
+        this.bookList = bookList;
+    }
 
     @ManyToOne
     private Client client;
@@ -24,4 +33,3 @@ public class Reservation extends BaseIdentifier {
     private List<Book> bookList;
 
 }
-
