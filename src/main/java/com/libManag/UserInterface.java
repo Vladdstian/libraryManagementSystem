@@ -20,56 +20,51 @@ public class UserInterface {
         scanner = new Scanner(System.in);
     }
 
-    public void start() {
-        while(true) {
-            menu();
-            int choice = scanner.nextInt();
-            choiceMenu(choice);
-        }
-    }
-
-    private void menu() {
+    public void mainMenu () {
         System.out.println(
-                    "Welcome!\n" +
-                    "1. Create user\n" +
-                    "2. Log In\n" +
-                    "3. Admin\n" +
-                    "Enter 4 to quit"
+                "Welcome!\n" +
+                "1. Create user\n" +
+                "2. Log In\n" +
+                "3. Admin\n" +
+                "Enter 4 to quit"
                 );
-    }
+        int mainMenuChoice = scanner.nextInt();
 
-    private void choiceMenu(int choice) {
-        switch (choice) {
-            case 4 -> {
-                System.out.println("Exiting the program...");
-            }
+        clearScreen();
+        switch (mainMenuChoice) {
             case 1 -> {
                 createUser();
             }
             case 2 -> {
-                logInMenu();
+                userAuthentification();
             }
             case 3 -> {
-                clearScreen();
                 adminMenu();
+            }
+            case 4 -> {
+                System.out.println("Exiting the program...");
             }
         }
     }
 
-    private void logInMenu() {
-        while (true) {
-            clearScreen();
-            System.out.println("Please enter your username: ");
-            String username = scanner.next();
-            String foundPassword = ClientManager.searchUsername(username, entityManager);
+    private void userAuthentification() {
+        clearScreen();
+        System.out.println("Please enter your username: ");
+        String username = scanner.next();
+
+        Client clientFound = null;
+        try{
+            clientFound = ClientManager.searchUsername(username, entityManager).get(0);
             System.out.println("Please enter your password: ");
-            String password = scanner.next();
-            // TODO: create new user if the client doesn't exist
-            if (foundPassword.equals(password)) {
+            String typePassword = scanner.next(); //odata identificat clientul acesta va introduce parola
+            if (clientFound.getPassword().equals(typePassword)) { // se verifica parola din baza de date (.getPassword()) cu cea introdusa de el
                 clearScreen();
-                //clientMenu();
-                break;
+                clientMenu(clientFound);
             }
+        }catch (IndexOutOfBoundsException e){
+            clearScreen();
+            System.out.println("User not found please create user");
+            createUser();
         }
     }
 
@@ -77,8 +72,62 @@ public class UserInterface {
         System.out.printf("Welcome %s %s!\n" +
                 "1. Borrow new books\n" +
                 "2. View active borrowings\n" +
-                "3. View borrowing history\n", client.getFirstName(), client.getLastName());
+                "3. View borrowing history\n" +
+                "Enter 4 to go back or 5 to quit\n", client.getFirstName(), client.getLastName());
+        int choice = scanner.nextInt();
+        choiceClientMenu(choice, client);
     }
+
+    private void choiceClientMenu(int choice, Client client){
+        switch (choice){
+            case 1 -> {
+                borrowNewBooks();
+                clientMenu(client);
+            }
+            case 2 ->{
+                viewActiveBorrowings();
+                clientMenu(client);
+            }
+            case 3 ->{
+                viewBorrowingHistory();
+                clientMenu(client);
+            }
+            case 4 ->{
+                System.out.println("Go back");
+                mainMenu();
+            }
+            case 5 ->{
+                System.out.println("Quit...");
+            }
+        }
+    }
+
+
+    private void borrowNewBooks(){
+        System.out.println("Search: ");
+        String term = scanner.next();
+        List<Book> foundBooks= new ArrayList<>();
+        List<Author> foundAuthors= new ArrayList<>();
+        List<Genre> foundGenre= new ArrayList<>();
+        // searching for books, authors, genre
+        foundBooks.addAll(InventoryManager.searchTitle(term, entityManager));
+        foundAuthors.addAll(AuthorsRepository.searchName(term, entityManager));
+        foundGenre.addAll(GenreRepository.searchName(term, entityManager));
+
+        foundBooks.forEach(book -> System.out.println(book.getTitle()));
+        foundAuthors.forEach(author -> System.out.println(author.getLastName() + " " +
+                author.getFirstName()));
+        foundGenre.forEach(genre -> System.out.println(genre.getName()));
+    }
+
+    private void viewActiveBorrowings(){
+
+    }
+
+    public void viewBorrowingHistory(){
+
+    }
+
 
     private void adminMenu() {
         System.out.println(
@@ -93,6 +142,7 @@ public class UserInterface {
     }
 
     private void choiceAdminMenu(int choice) {
+        clearScreen();
         switch (choice) {
             case 1 -> {
                 createBook();
@@ -107,9 +157,10 @@ public class UserInterface {
                 adminMenu();
             }
             case 4 -> {
-
+                mainMenu();
             }
             case 5 -> {
+                System.out.println("Exit in the programm");
 
             }
         }
