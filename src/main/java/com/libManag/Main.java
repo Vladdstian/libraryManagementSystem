@@ -4,7 +4,6 @@ import jakarta.persistence.EntityManager;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
 
-// TODO - create service class for searching entities.
 public class Main {
 
     public static void main(String[] args) {

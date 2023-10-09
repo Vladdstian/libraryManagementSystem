@@ -37,7 +37,10 @@ public class UserInterface {
             case "1" -> createUser();
             case "2" -> userAuthentication();
             case "3" -> adminMenu();
-            case "Q" -> System.out.println("Exiting the program...");
+            case "Q" -> {
+                System.out.println("Exiting the program...");
+                System.exit(0);
+            }
             default -> mainMenu();
         }
     }
@@ -200,7 +203,7 @@ public class UserInterface {
                         """
                 , chosenBook.getTitle()
                 , chosenBook.getYearReleased());
-        int bookMenuChoice = scanner.nextInt();
+        int bookMenuChoice = scanner.nextInt(); //TODO - check if entering a letter breaks the app
         clearScreen();
         switch (bookMenuChoice) {
             case 1 -> {
