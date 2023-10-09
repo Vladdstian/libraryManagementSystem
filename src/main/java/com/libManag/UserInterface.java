@@ -239,8 +239,23 @@ public class UserInterface {
         System.out.println("Please enter your first name: ");
         String firstName = scanner.next();
 
-        System.out.println("Please enter a username: ");
-        String username = scanner.next();
+        String username;
+        boolean usernameExists = false;
+
+        while (true) {
+            if (usernameExists) System.err.println("Username already exists in the database.");
+
+            System.out.println("Please enter a username: ");
+            username = scanner.next();
+            try {
+                // It doesn't make sense to recheck for equality if it already found a Client based on the username entered
+                Client client = ClientManager.searchUsername(username, entityManager).get(0);
+                usernameExists = true;
+            } catch (IndexOutOfBoundsException e) {
+                break;
+            }
+        }
+
 
         System.out.println("Please enter a password: ");
         String password = scanner.next();
