@@ -97,7 +97,7 @@ public class UserInterface {
                 mainMenu();
             }
             case 5 ->{
-                System.out.println("Quit...");
+                System.out.println("Exiting the program...");
             }
         }
     }
@@ -224,8 +224,7 @@ public class UserInterface {
                 mainMenu();
             }
             case 5 -> {
-                System.out.println("Exit in the programm");
-
+                System.out.println("Exiting the program...");
             }
         }
     }
