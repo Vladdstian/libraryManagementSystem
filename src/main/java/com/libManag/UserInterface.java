@@ -76,6 +76,7 @@ public class UserInterface {
     }
 
     private void choiceClientMenu(int choice, Client client){
+        clearScreen();
         switch (choice){
             case 1 -> {
                 List<Book> booksToBeReserved = new ArrayList<>();
@@ -93,7 +94,6 @@ public class UserInterface {
                 clientMenu(client);
             }
             case 4 ->{
-                clearScreen();
                 mainMenu();
             }
             case 5 ->{
@@ -116,11 +116,13 @@ public class UserInterface {
         for (int i = 0; i < booksFound.size(); i++) {
             Book book = booksFound.get(i);
             StringBuilder stringBuilder = new StringBuilder();
-            book.getAuthorList().forEach(author -> stringBuilder.append(author.getLastName() + " " + author.getFirstName()));
+            book.getAuthorList().forEach(author -> stringBuilder.append(author.getLastName())
+                    .append(" ")
+                    .append(author.getFirstName()));
             System.out.printf("%d. %s, %s, %d (Located in: %s)\n",
                     (i+1),
                     book.getTitle(),
-                    stringBuilder.toString(),
+                    stringBuilder,
                     book.getYearReleased(),
                     book.getLocation());
         }
