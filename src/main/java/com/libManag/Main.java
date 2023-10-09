@@ -20,5 +20,5 @@ public class Main {
         EntityManager entityManager = sessionFactory.createEntityManager();
         UserInterface ui = new UserInterface(entityManager);
         ui.mainMenu();
-    }// TODO LIST
+    }
 }
