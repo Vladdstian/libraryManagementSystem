@@ -38,7 +38,7 @@ public interface ClientManager {
 
     // searching clients by username
     static List<Client> searchUsername(String username, EntityManager entityManager) {
-        return entityManager.createQuery("select a from Client a where username = :username", Client.class)
+        return entityManager.createQuery("select a from Client a where LOWER(username)= LOWER(:username)", Client.class)
                 .setParameter("username", username)
                 .getResultList();
     }
