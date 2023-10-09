@@ -18,14 +18,15 @@ public class UserInterface {
         scanner = new Scanner(System.in).useDelimiter("\n");
     }
 
-    public void mainMenu () {
+    public void mainMenu() {
         System.out.println(
-                "Welcome!\n" +
-                "1. Create user\n" +
-                "2. Log In\n" +
-                "3. Admin\n" +
-                "Enter 4 to quit"
-                );
+                """
+                        Welcome!
+                        1. Create user
+                        2. Log In
+                        3. Admin
+                        Enter 4 to quit"""
+        );
         int mainMenuChoice = scanner.nextInt();
 
         clearScreen();
@@ -45,13 +46,92 @@ public class UserInterface {
         }
     }
 
+    private void clientMenu(Client client) {
+        System.out.printf("""
+                Welcome %s %s!
+                1. Borrow new books
+                2. View active borrowings
+                3. Return borrowed books
+                4. View borrowing history
+                Enter 5 to go back or 9 to quit
+                """, client.getFirstName(), client.getLastName());
+        int choice = scanner.nextInt();
+
+        clearScreen();
+        switch (choice) {
+            case 1 -> {
+                List<Book> booksToBeReserved = new ArrayList<>();
+                Reservation reservation = new Reservation(StateOfReservation.PENDING, LocalDate.now(), client, booksToBeReserved);
+                Service.save(reservation, entityManager);
+                borrowNewBooks(client, reservation);
+                clientMenu(client);
+            }
+            case 2 -> {
+                viewActiveBorrowings();
+                clientMenu(client);
+            }
+            case 3 -> {
+                returnBooks();
+            }
+            case 4 -> {
+                viewBorrowingHistory();
+                clientMenu(client);
+            }
+            case 5 -> {
+                mainMenu();
+            }
+            case 9 -> {
+                System.out.println("Exiting the program...");
+            }
+        }
+    }
+
+    private void adminMenu() {
+        // TODO - add option to MODIFY, DELETE books from the inventory
+        System.out.println(
+                """
+                                Welcome admin!
+                                1. Create book
+                                2. Create author
+                                3. Create genre
+                                4. Edit
+                                5. Delete
+                                Enter 6 to go back or 9 to quit
+                        """
+        );
+        int choice = scanner.nextInt();
+
+        clearScreen();
+        switch (choice) {
+            case 1 -> {
+                createBook();
+            }
+            case 2 -> {
+                createAuthor();
+                clearScreen();
+                adminMenu();
+            }
+            case 3 -> {
+                createGenre();
+                clearScreen();
+                adminMenu();
+            }
+            case 6 -> {
+                mainMenu();
+            }
+            case 9 -> {
+                System.out.println("Exiting the program...");
+            }
+        }
+    }
+
     private void userAuthentication() {
         clearScreen();
         System.out.println("Please enter your username: ");
         String username = scanner.next();
 
         Client clientFound;
-        try{
+        try {
             clientFound = ClientManager.searchUsername(username, entityManager).get(0);
             System.out.println("Please enter your password: ");
             String typePassword = scanner.next();
@@ -61,52 +141,16 @@ public class UserInterface {
                 clearScreen();
                 clientMenu(clientFound);
             }
-        }catch (IndexOutOfBoundsException e){
+        } catch (IndexOutOfBoundsException e) {
             clearScreen();
             System.out.println("User not found! Please create a new user.");
             mainMenu();
         }
     }
 
-    private void clientMenu(Client client) {
-        System.out.printf("Welcome %s %s!\n" +
-                "1. Borrow new books\n" +
-                "2. View active borrowings\n" +
-                "3. View borrowing history\n" +
-                "Enter 4 to go back or 5 to quit\n", client.getFirstName(), client.getLastName());
-        int choice = scanner.nextInt();
-        choiceClientMenu(choice, client);
-    }
-
-    private void choiceClientMenu(int choice, Client client){
-        clearScreen();
-        switch (choice){
-            case 1 -> {
-                List<Book> booksToBeReserved = new ArrayList<>();
-                Reservation reservation = new Reservation(StateOfReservation.PENDING, LocalDate.now(), client, booksToBeReserved);
-                Service.save(reservation, entityManager);
-                borrowNewBooks(client, reservation);
-                clientMenu(client);
-            }
-            case 2 ->{
-                viewActiveBorrowings();
-                clientMenu(client);
-            }
-            case 3 ->{
-                viewBorrowingHistory();
-                clientMenu(client);
-            }
-            case 4 ->{
-                mainMenu();
-            }
-            case 5 ->{
-                System.out.println("Exiting the program...");
-            }
-        }
-    }
-
     private void borrowNewBooks(Client client, Reservation reservation) {
         // TODO - rethink and restructure method
+        // TODO - treat invalid entries - example: when choosing a book and entering something invalid
         System.out.println("Search: ");
         String term = scanner.next();
         List<Book> booksFound = searchBooks(term);
@@ -124,7 +168,7 @@ public class UserInterface {
                     .append(" ")
                     .append(author.getFirstName()));
             System.out.printf("%d. %s, %s, %d (Located in: %s)\n",
-                    (i+1),
+                    (i + 1),
                     book.getTitle(),
                     stringBuilder,
                     book.getYearReleased(),
@@ -196,46 +240,9 @@ public class UserInterface {
     }
 
     private void viewBorrowingHistory() {
-
     }
 
-
-    private void adminMenu() {
-        // TODO - add option to MODIFY, DELETE books from the inventory
-        System.out.println(
-                "Welcome admin!\n" +
-                "1. Create book\n" +
-                "2. Create author\n" +
-                "3. Create genre\n" +
-                "Enter 4 to go back or 5 to quit"
-        );
-        int choice = scanner.nextInt();
-        choiceAdminMenu(choice);
-    }
-
-    private void choiceAdminMenu(int choice) {
-        clearScreen();
-        switch (choice) {
-            case 1 -> {
-                createBook();
-            }
-            case 2 -> {
-                createAuthor();
-                clearScreen();
-                adminMenu();
-            }
-            case 3 -> {
-                createGenre();
-                clearScreen();
-                adminMenu();
-            }
-            case 4 -> {
-                mainMenu();
-            }
-            case 5 -> {
-                System.out.println("Exiting the program...");
-            }
-        }
+    private void returnBooks() {
     }
 
     private void createUser() {
@@ -269,7 +276,7 @@ public class UserInterface {
         String password = scanner.next();
 
         List<Reservation> clientReservations = new ArrayList<>();
-        Client newClient = new Client(firstName,lastName,username,password,clientReservations);
+        Client newClient = new Client(firstName, lastName, username, password, clientReservations);
 
         Service.save(newClient, entityManager);
 
@@ -306,7 +313,6 @@ public class UserInterface {
                 author = foundAuthors.get(0);
                 System.out.println("Author found: " + author.getFirstName() + " " + author.getLastName());
                 bookAuthors.add(author);
-                // TODO - if it exists add the book to author's list of books and update author list of books in the DataBase
             } else { // 3 - if it doesn't exist we create a new one
                 System.out.println("Author not found in the database, please create a new author!");
                 author = createAuthor();
@@ -324,7 +330,6 @@ public class UserInterface {
         if (!foundGenre.isEmpty()) {
             bookGenre = foundGenre.get(0);
             System.out.println("Genre found: " + bookGenre.getName());
-            // TODO - if it exists add the book to genre's list of books and update genre list of books in the DataBase
         } else {
             System.out.println("Genre not found, please create a new genre!");
             bookGenre = createGenre(); // 3 - if it doesn't exist we create a new one
@@ -336,8 +341,18 @@ public class UserInterface {
                 location, yearReleased, bookCount,
                 bookAuthors, bookGenre, bookReservations);
 
-        author.getBookList().add(newBook);
-        bookGenre.getBookGenres().add(newBook);
+        // DONE: if it exists add the book to author's list of books and update author list of books in the DataBase
+        // DONE: if it exists add the book to genre's list of books and update genre list of books in the DataBase
+
+        try {
+            bookGenre.getBookGenres().add(newBook);
+            Service.update(bookGenre, entityManager);
+            author.getBookList().add(newBook);
+            Service.update(author, entityManager);
+        } catch (NullPointerException ignored) {
+        }
+        ;
+
 
         Service.save(newBook, entityManager);
         clearScreen();
