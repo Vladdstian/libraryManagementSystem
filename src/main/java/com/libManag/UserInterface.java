@@ -14,7 +14,8 @@ public class UserInterface {
 
     public UserInterface(EntityManager entityManager) {
         this.entityManager = entityManager;
-        scanner = new Scanner(System.in);
+        // changed the scanner type to only read the entry after enter is pressed
+        scanner = new Scanner(System.in).useDelimiter("\n");
     }
 
     public void mainMenu () {
