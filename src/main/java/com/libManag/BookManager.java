@@ -7,9 +7,10 @@ import java.util.List;
 public interface BookManager {
 
     // Searching records by title
+    // changed method to retrieve all similar titles to the inputted string
     static List<Book> searchTitle(String title, EntityManager entityManager) {
-        return entityManager.createQuery("select b from Book b where title= :title", Book.class)
-                .setParameter("title", title)
+        return entityManager.createQuery("select b from Book b where LOWER(title) LIKE LOWER(:title)", Book.class)
+                .setParameter("title", "%" + title + "%")
                 .getResultList();
     }
 

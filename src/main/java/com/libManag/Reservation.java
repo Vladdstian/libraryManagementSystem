@@ -9,8 +9,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Entity(name = "reservations")
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
 public class Reservation extends BaseIdentifier {
     public static final int maxDaysLoaned = 30;
@@ -18,6 +16,9 @@ public class Reservation extends BaseIdentifier {
     private LocalDate dateOfReservation;
     private LocalDate dateOfReturn;
 
+    private Reservation() {
+
+    }
     public Reservation(StateOfReservation state, LocalDate dateOfReservation, Client client, List<Book> bookList) {
         super();
         this.state = state;
