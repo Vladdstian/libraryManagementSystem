@@ -34,7 +34,7 @@ public class UserInterface {
                 createUser();
             }
             case 2 -> {
-                userAuthentification();
+                userAuthentication();
             }
             case 3 -> {
                 adminMenu();
@@ -45,24 +45,26 @@ public class UserInterface {
         }
     }
 
-    private void userAuthentification() {
+    private void userAuthentication() {
         clearScreen();
         System.out.println("Please enter your username: ");
         String username = scanner.next();
 
-        Client clientFound = null;
+        Client clientFound;
         try{
             clientFound = ClientManager.searchUsername(username, entityManager).get(0);
             System.out.println("Please enter your password: ");
-            String typePassword = scanner.next(); //odata identificat clientul acesta va introduce parola
-            if (clientFound.getPassword().equals(typePassword)) { // se verifica parola din baza de date (.getPassword()) cu cea introdusa de el
+            String typePassword = scanner.next();
+            // once the user has been identified in the database it will ask for it's password
+            if (clientFound.getPassword().equals(typePassword)) {
+                // check the password found in the database (.getPassword()) with the one entered by the user in the terminal
                 clearScreen();
                 clientMenu(clientFound);
             }
         }catch (IndexOutOfBoundsException e){
             clearScreen();
-            System.out.println("User not found please create user");
-            createUser();
+            System.out.println("User not found! Please create a new user.");
+            mainMenu();
         }
     }
 
@@ -104,6 +106,7 @@ public class UserInterface {
     }
 
     private void borrowNewBooks(Client client, Reservation reservation) {
+        // TODO - rethink and restructure method
         System.out.println("Search: ");
         String term = scanner.next();
         List<Book> booksFound = searchBooks(term);
@@ -198,6 +201,7 @@ public class UserInterface {
 
 
     private void adminMenu() {
+        // TODO - add option to MODIFY, DELETE books from the inventory
         System.out.println(
                 "Welcome admin!\n" +
                 "1. Create book\n" +
@@ -217,10 +221,12 @@ public class UserInterface {
             }
             case 2 -> {
                 createAuthor();
+                clearScreen();
                 adminMenu();
             }
             case 3 -> {
                 createGenre();
+                clearScreen();
                 adminMenu();
             }
             case 4 -> {
@@ -233,6 +239,8 @@ public class UserInterface {
     }
 
     private void createUser() {
+        // DONE: search if the username doesn't already exist when creating another one
+
         System.out.println("Please enter your last name: ");
         String lastName = scanner.next();
 
@@ -298,6 +306,7 @@ public class UserInterface {
                 author = foundAuthors.get(0);
                 System.out.println("Author found: " + author.getFirstName() + " " + author.getLastName());
                 bookAuthors.add(author);
+                // TODO - if it exists add the book to author's list of books and update author list of books in the DataBase
             } else { // 3 - if it doesn't exist we create a new one
                 System.out.println("Author not found in the database, please create a new author!");
                 author = createAuthor();
@@ -315,6 +324,7 @@ public class UserInterface {
         if (!foundGenre.isEmpty()) {
             bookGenre = foundGenre.get(0);
             System.out.println("Genre found: " + bookGenre.getName());
+            // TODO - if it exists add the book to genre's list of books and update genre list of books in the DataBase
         } else {
             System.out.println("Genre not found, please create a new genre!");
             bookGenre = createGenre(); // 3 - if it doesn't exist we create a new one
@@ -335,6 +345,7 @@ public class UserInterface {
     }
 
     private Author createAuthor() {
+        // TODO - search if the Author doesn't already exist
         System.out.println("Please enter author last name: ");
         String lastName = scanner.next();
 
@@ -350,6 +361,7 @@ public class UserInterface {
     }
 
     private Genre createGenre() {
+        // TODO - search if the genre doesn't already exist
         System.out.println("Please enter a new genre: ");
         String genreName = scanner.next();
 
