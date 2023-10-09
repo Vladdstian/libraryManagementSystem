@@ -31,18 +31,10 @@ public class UserInterface {
 
         clearScreen();
         switch (mainMenuChoice) {
-            case 1 -> {
-                createUser();
-            }
-            case 2 -> {
-                userAuthentication();
-            }
-            case 3 -> {
-                adminMenu();
-            }
-            case 4 -> {
-                System.out.println("Exiting the program...");
-            }
+            case 1 -> createUser();
+            case 2 -> userAuthentication();
+            case 3 -> adminMenu();
+            case 4 -> System.out.println("Exiting the program...");
         }
     }
 
@@ -70,19 +62,13 @@ public class UserInterface {
                 viewActiveBorrowings();
                 clientMenu(client);
             }
-            case 3 -> {
-                returnBooks();
-            }
+            case 3 -> returnBooks();
             case 4 -> {
                 viewBorrowingHistory();
                 clientMenu(client);
             }
-            case 5 -> {
-                mainMenu();
-            }
-            case 9 -> {
-                System.out.println("Exiting the program...");
-            }
+            case 5 -> mainMenu();
+            case 9 -> System.out.println("Exiting the program...");
         }
     }
 
@@ -103,9 +89,7 @@ public class UserInterface {
 
         clearScreen();
         switch (choice) {
-            case 1 -> {
-                createBook();
-            }
+            case 1 -> createBook();
             case 2 -> {
                 createAuthor();
                 clearScreen();
@@ -116,12 +100,8 @@ public class UserInterface {
                 clearScreen();
                 adminMenu();
             }
-            case 6 -> {
-                mainMenu();
-            }
-            case 9 -> {
-                System.out.println("Exiting the program...");
-            }
+            case 6 -> mainMenu();
+            case 9 -> System.out.println("Exiting the program...");
         }
     }
 
@@ -153,27 +133,16 @@ public class UserInterface {
         // TODO - treat invalid entries - example: when choosing a book and entering something invalid
         System.out.println("Search: ");
         String term = scanner.next();
-        List<Book> booksFound = searchBooks(term);
+        List<Book> booksFound = searchMatchingBooks(term);
 
         if (booksFound.isEmpty()) {
             clearScreen();
             System.out.println("Your search returned no results...");
             clientMenu(client);
         }
-        System.out.println("Books found: ");
-        for (int i = 0; i < booksFound.size(); i++) {
-            Book book = booksFound.get(i);
-            StringBuilder stringBuilder = new StringBuilder();
-            book.getAuthorList().forEach(author -> stringBuilder.append(author.getLastName())
-                    .append(" ")
-                    .append(author.getFirstName()));
-            System.out.printf("%d. %s, %s, %d (Located in: %s)\n",
-                    (i + 1),
-                    book.getTitle(),
-                    stringBuilder,
-                    book.getYearReleased(),
-                    book.getLocation());
-        }
+
+        showBooks(booksFound);
+
         System.out.println("Please choose a book to borrow: ");
         int borrowChoice = scanner.nextInt();
         Book borrowedBook = booksFound.get(borrowChoice - 1);
@@ -191,22 +160,21 @@ public class UserInterface {
         Service.update(reservation, entityManager);
     }
 
-    private List<Book> searchBooks(String term) {
-        List<Book> booksFound = new ArrayList<>();
-        List<Author> foundAuthors = new ArrayList<>();
-        List<Genre> foundGenre = new ArrayList<>();
-        // Searching for books by:
+    private List<Book> searchMatchingBooks(String term) {
+        // add books to a list , from searching books by their properties
         // title
-        booksFound.addAll(BookManager.searchTitle(term, entityManager));
-        // year of release
-        try {
-            booksFound.addAll(BookManager.searchYearOfRelease(Integer.valueOf(term), entityManager));
-        } catch (Exception e) {
-
-        }
+        List<Book> booksFound = new ArrayList<>(BookManager.searchTitle(term, entityManager));
         // location
         booksFound.addAll(BookManager.searchLocation(term, entityManager));
+        // year of release
+        try {
+            booksFound.addAll(BookManager.searchYearOfRelease(Integer.parseInt(term), entityManager));
+        } catch (Exception ignored) {
 
+        }
+
+        // search for an author name/last name/ first name and add all books from found authors to the list
+        List<Author> foundAuthors = new ArrayList<>();
         // Searching for authors by:
         // attempt to search by complete name by splitting the searched term by space
         try {
@@ -222,17 +190,30 @@ public class UserInterface {
             // first name
             foundAuthors.addAll(AuthorsManager.searchFirstName(term, entityManager));
         }
-
-        // Searching for genre by name:
-        foundGenre.addAll(GenreManager.searchName(term, entityManager));
-
-        // add all the books in the list of books for each author found
+        // add all the books in the booksFound list for each author found
         foundAuthors.forEach(author -> booksFound.addAll(author.getBookList()));
 
-        // add all the books in the list of books for each genre found
-        foundGenre.forEach(genre -> booksFound.addAll(genre.getBookGenres()));
+        // search for a genre name - add books from that genre to the booksFound list
+        GenreManager.searchName(term, entityManager).forEach(genre -> booksFound.addAll(genre.getBookGenres()));
 
         return booksFound;
+    }
+
+    private void showBooks(List<Book> booksFound) {
+        System.out.println("Books found: ");
+        for (int i = 0; i < booksFound.size(); i++) {
+            Book book = booksFound.get(i);
+            StringBuilder stringBuilder = new StringBuilder();
+            book.getAuthorList().forEach(author -> stringBuilder.append(author.getLastName())
+                    .append(" ")
+                    .append(author.getFirstName()));
+            System.out.printf("%d. %s, %s, %d (Located in: %s)\n",
+                    (i + 1),
+                    book.getTitle(),
+                    stringBuilder,
+                    book.getYearReleased(),
+                    book.getLocation());
+        }
     }
 
     private void viewActiveBorrowings() {
@@ -264,7 +245,7 @@ public class UserInterface {
             username = scanner.next();
             try {
                 // It doesn't make sense to recheck for equality if it already found a Client based on the username entered
-                Client client = ClientManager.searchUsername(username, entityManager).get(0);
+                ClientManager.searchUsername(username, entityManager).get(0);
                 usernameExists = true;
             } catch (IndexOutOfBoundsException e) {
                 break;
@@ -351,8 +332,6 @@ public class UserInterface {
             Service.update(author, entityManager);
         } catch (NullPointerException ignored) {
         }
-        ;
-
 
         Service.save(newBook, entityManager);
         clearScreen();
