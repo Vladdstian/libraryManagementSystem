@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 
 public class UserInterface {
@@ -58,21 +59,19 @@ public class UserInterface {
         String username;
         boolean usernameExists = false;
 
-        while (true) {
-            if (usernameExists) System.err.println("Username already exists in the database.");
-
+        do {
             System.out.println("Please enter a username: ");
             System.out.print("-> ");
             username = scanner.next();
-            try {
-                // It doesn't make sense to recheck for equality if it already found a Client based on the username entered
-                ClientManager.searchUsername(username, entityManager).get(0);
-                usernameExists = true;
-            } catch (IndexOutOfBoundsException e) {
-                break;
-            }
-        }
-
+            if(!ClientManager.searchUsername(username, entityManager).isEmpty()) {
+                System.err.println("Username already exists in the database.");
+                try {
+                    TimeUnit.MILLISECONDS.sleep(50);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            } else usernameExists = true;
+        }while (!usernameExists);
 
         System.out.println("Please enter a password: ");
         System.out.print("-> ");
