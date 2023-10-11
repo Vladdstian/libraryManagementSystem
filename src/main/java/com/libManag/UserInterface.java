@@ -38,11 +38,16 @@ public class UserInterface {
             case "1" -> createUser();
             case "2" -> userAuthentication();
             case "3" -> adminMenu();
-            case "Q" -> {
-                System.out.println("Exiting the program...");
-                System.exit(0);
+            case "Q","q","quit","QUIT","Quit" -> exitProgram();
+            default -> {
+                System.err.println("Invalid choice! Please select again...");
+                try {
+                    TimeUnit.MILLISECONDS.sleep(1200);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                mainMenu();
             }
-            default -> mainMenu();
         }
     }
     private void createUser() {
@@ -165,7 +170,7 @@ public class UserInterface {
                 clientSession.resetSession();
                 mainMenu();
             }
-            case "Q","q" -> System.out.println("Exiting the program...");
+            case "Q","q","quit","QUIT","Quit" -> exitProgram();
             default -> {
                 System.out.println("Invalid choice. Please choose again: ");
                 clientMenu(client);
@@ -336,7 +341,7 @@ public class UserInterface {
                 adminMenu();
             }
             case "B", "b" -> mainMenu();
-            case "Q", "q" -> System.out.println("Exiting the program...");
+            case "Q","q","quit","QUIT","Quit" -> exitProgram();
         }
     }
     private void createMenu() {
@@ -363,8 +368,8 @@ public class UserInterface {
                 clearScreen();
                 adminMenu();
             }
-            case "6" -> mainMenu();
-            case "9" -> System.out.println("Exiting the program...");
+            case "B","b" -> mainMenu();
+            case "Q","q","quit","QUIT","Quit" -> exitProgram();
         }
     }
     private void editMenu() {
@@ -541,5 +546,9 @@ public class UserInterface {
     }
     private void clearScreen() {
         System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+    }
+    private void exitProgram() {
+        System.out.println("Exiting the program...");
+        System.exit(0);
     }
 }
