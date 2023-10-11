@@ -342,6 +342,10 @@ public class UserInterface {
             }
             case "B", "b" -> mainMenu();
             case "Q","q","quit","QUIT","Quit" -> exitProgram();
+            default -> {
+                System.out.println("Invalid choice. Please choose again: ");
+                adminMenu();
+            }
         }
     }
     private void createMenu() {
