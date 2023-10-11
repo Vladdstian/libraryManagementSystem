@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 
 public class UserInterface {
@@ -37,8 +38,16 @@ public class UserInterface {
             case "1" -> createUser();
             case "2" -> userAuthentication();
             case "3" -> adminMenu();
-            case "Q" -> System.out.println("Exiting the program...");
-            default -> mainMenu();
+            case "Q","q","quit","QUIT","Quit" -> exitProgram();
+            default -> {
+                System.err.println("Invalid choice! Please select again...");
+                try {
+                    TimeUnit.MILLISECONDS.sleep(1200);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                mainMenu();
+            }
         }
     }
     private void createUser() {
@@ -55,21 +64,19 @@ public class UserInterface {
         String username;
         boolean usernameExists = false;
 
-        while (true) {
-            if (usernameExists) System.err.println("Username already exists in the database.");
-
+        do {
             System.out.println("Please enter a username: ");
             System.out.print("-> ");
             username = scanner.next();
-            try {
-                // It doesn't make sense to recheck for equality if it already found a Client based on the username entered
-                ClientManager.searchUsername(username, entityManager).get(0);
-                usernameExists = true;
-            } catch (IndexOutOfBoundsException e) {
-                break;
-            }
-        }
-
+            if(!ClientManager.searchUsername(username, entityManager).isEmpty()) {
+                System.err.println("Username already exists in the database.");
+                try {
+                    TimeUnit.MILLISECONDS.sleep(50);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            } else usernameExists = true;
+        }while (!usernameExists);
 
         System.out.println("Please enter a password: ");
         System.out.print("-> ");
@@ -163,7 +170,7 @@ public class UserInterface {
                 clientSession.resetSession();
                 mainMenu();
             }
-            case "Q","q" -> System.out.println("Exiting the program...");
+            case "Q","q","quit","QUIT","Quit" -> exitProgram();
             default -> {
                 System.out.println("Invalid choice. Please choose again: ");
                 clientMenu(client);
@@ -200,7 +207,7 @@ public class UserInterface {
                         """
                 , chosenBook.getTitle()
                 , chosenBook.getYearReleased());
-        int bookMenuChoice = scanner.nextInt();
+        int bookMenuChoice = scanner.nextInt(); //TODO - check if entering a letter breaks the app
         clearScreen();
         switch (bookMenuChoice) {
             case 1 -> {
@@ -334,7 +341,7 @@ public class UserInterface {
                 adminMenu();
             }
             case "B", "b" -> mainMenu();
-            case "Q", "q" -> System.out.println("Exiting the program...");
+            case "Q","q","quit","QUIT","Quit" -> exitProgram();
         }
     }
     private void createMenu() {
@@ -361,8 +368,8 @@ public class UserInterface {
                 clearScreen();
                 adminMenu();
             }
-            case "6" -> mainMenu();
-            case "9" -> System.out.println("Exiting the program...");
+            case "B","b" -> mainMenu();
+            case "Q","q","quit","QUIT","Quit" -> exitProgram();
         }
     }
     private void editMenu() {
@@ -539,5 +546,9 @@ public class UserInterface {
     }
     private void clearScreen() {
         System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+    }
+    private void exitProgram() {
+        System.out.println("Exiting the program...");
+        System.exit(0);
     }
 }
