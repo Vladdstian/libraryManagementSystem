@@ -379,8 +379,21 @@ public class UserInterface {
         System.err.println("Not yet available...");
     }
     private void createBook() {
-        System.out.println("Please enter the book title: ");
-        String title = scanner.next();
+        String title;
+        boolean bookExists = true;
+        do {
+            System.out.println("Please enter the book title: ");
+            System.out.print("-> ");
+            title = scanner.next();
+            if(!BookManager.searchTitle(title, entityManager).isEmpty()) {
+                System.err.println("Book already exists in the database.");
+                try {
+                    TimeUnit.MILLISECONDS.sleep(50);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            } else bookExists = false;
+        }while (bookExists);
 
         System.out.println("Please enter the location where the book can be found: ");
         String location = scanner.next();
@@ -509,7 +522,7 @@ public class UserInterface {
     private List<Book> searchMatchingBooks(String term) {
         // add books to a list , from searching books by their properties
         // title
-        List<Book> booksFound = new ArrayList<>(BookManager.searchTitle(term, entityManager));
+        List<Book> booksFound = new ArrayList<>(BookManager.searchSimilarTitle(term, entityManager));
         // location
         booksFound.addAll(BookManager.searchLocation(term, entityManager));
         // year of release
@@ -548,7 +561,8 @@ public class UserInterface {
         System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
     }
     private void exitProgram() {
-        System.out.println("Exiting the program...");
+        System.err.println("Exiting the program...");
+        System.out.println("Goodbye!");
         System.exit(0);
     }
 }
