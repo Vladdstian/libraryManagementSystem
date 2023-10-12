@@ -484,8 +484,21 @@ public class UserInterface {
     }
     private Genre createGenre() {
         // TODO - search if the genre doesn't already exist
-        System.out.println("Please enter a new genre: ");
-        String genreName = scanner.next();
+        String genreName;
+        boolean genreExists = true;
+        do {
+            System.out.println("Please enter a new genre: ");
+            System.out.print("-> ");
+            genreName = scanner.next();
+            if(!GenreManager.searchName(genreName, entityManager).isEmpty()) {
+                System.err.println("Genre already exists in the database.");
+                try {
+                    TimeUnit.MILLISECONDS.sleep(50);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            } else genreExists = false;
+        }while (genreExists);
 
         List<Book> genreList = new ArrayList<>();
 
