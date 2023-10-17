@@ -16,7 +16,7 @@ A management system for a library network that allows users to borrow, return, a
 - **Verification**: At the time of borrowing.
 
 ### 3. Borrowing Process
-- **Search**: Allowing readers to search for books by title, author, and other criteria.
+- **Search**: Allowing readers to search for books by title, author, and other criteria .
 - **Listing Books**: Displaying available books based on search criteria.
 - **Borrowing Process**: Selecting, calculating duration, penalties for delay.
 - **Confirmation**: Providing a unique borrowing ID.
